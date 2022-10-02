@@ -9,43 +9,28 @@ public class MainController : MonoBehaviour
     [SerializeField]
     private Material material;
 
-    [SerializeField]
-    [Range(0, 10000)]
     private int seed = 0;
-
-    [SerializeField]
-    [Range(50, 200)]
     private int xResolution = 100;
-    [SerializeField]
-    [Range(50, 200)]
     private int zResolution = 100;
-    [SerializeField]
-    [Range(0.0f, 1f)]
     private float waterHeight = 0.4f;
-    [SerializeField]
-    [Range(1f, 2f)]
     private float maxHeight = 1.1f;
-    [SerializeField]
-    [Range(0.1f, 2f)]
     private float noiseScale = 0.475f;
-    [SerializeField]
-    [Range(0f, 1f)]
     private float heightRandomizationFactor = 0.1f;
 
     private void Start()
     {
-        CreateNewGrid(seed);
+        CreateNewGrid();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            CreateNewGrid(seed);
+            CreateNewGrid();
         }
     }
 
-    private void CreateNewGrid(int seed)
+    private void CreateNewGrid()
     {
         if (createdGO != null)
         {
@@ -66,5 +51,48 @@ public class MainController : MonoBehaviour
 
         mf.mesh = meshGrid.Mesh;
         mr.material = material;
+    }
+
+    public void SeedChanged(int seed)
+    {
+        this.seed = seed;
+        CreateNewGrid();
+    }
+
+    public void XResolutionChanged(int xResolution)
+    {
+        this.xResolution = xResolution;
+        CreateNewGrid();
+    }
+
+    public void ZResolutionChanged(int zResolution)
+    {
+        this.zResolution = zResolution;
+        CreateNewGrid();
+    }
+
+    public void WaterHeightChanged(float waterHeight)
+    {
+        this.waterHeight = waterHeight;
+        CreateNewGrid();
+    }
+
+    public void MaxHeightChanged(float maxHeight)
+    {
+        this.maxHeight = maxHeight;
+        CreateNewGrid();
+    }
+
+    public void NoiseScaleChanged(float noiseScale)
+    {
+        this.noiseScale = noiseScale;
+        CreateNewGrid();
+    }
+
+    public void HeightRandomizationFactorChanged(
+        float heightRandomizationFactor)
+    {
+        this.heightRandomizationFactor = heightRandomizationFactor;
+        CreateNewGrid();
     }
 }

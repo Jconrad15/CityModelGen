@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class CellGrid
 {
@@ -46,17 +45,17 @@ public class CellGrid
         {
             for (int z = 0; z < zResolution; z++, i++)
             {
-                Cells[i] = GenerateCell(x, z, seed);
+                Cells[i] = GenerateCell(x, z, i, seed);
             }
         }
     }
 
-    public Cell GenerateCell(int x, int z, int seed)
+    public Cell GenerateCell(int x, int z, int i, int seed)
     {
         Random.State oldState = Random.state;
-        Random.InitState(seed + (x * z) + x + z);
+        Random.InitState(seed + (i * 100));
 
-        float height = DetermineHeight(x, z, seed);
+        float height = DetermineHeight(x, z, i, seed);
 
         Color color = HeightToColor(height, maxHeight);
         Vector3 center = new Vector3(
@@ -84,10 +83,10 @@ public class CellGrid
         return new Cell(color, height, lowerVertices);
     }
 
-    private float DetermineHeight(int x, int z, int seed)
+    private float DetermineHeight(int x, int z, int i, int seed)
     {
         Random.State oldState = Random.state;
-        Random.InitState(seed + (x * z) + x + z);
+        Random.InitState(seed + (i * 100));
 
         float height = Mathf.PerlinNoise(
             ((float)x / xRange * scale) + seed,
