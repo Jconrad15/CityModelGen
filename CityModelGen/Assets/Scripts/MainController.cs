@@ -10,12 +10,27 @@ public class MainController : MonoBehaviour
     private Material material;
 
     [SerializeField]
-    private int seed;
+    [Range(0, 10000)]
+    private int seed = 0;
 
     [SerializeField]
-    private int xResolution = 10;
+    [Range(50, 200)]
+    private int xResolution = 100;
     [SerializeField]
-    private int zResolution = 10;
+    [Range(50, 200)]
+    private int zResolution = 100;
+    [SerializeField]
+    [Range(0.0f, 1f)]
+    private float waterHeight = 0.4f;
+    [SerializeField]
+    [Range(1f, 2f)]
+    private float maxHeight = 1.1f;
+    [SerializeField]
+    [Range(0.1f, 2f)]
+    private float noiseScale = 0.475f;
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float heightRandomizationFactor = 0.1f;
 
     private void Start()
     {
@@ -37,8 +52,10 @@ public class MainController : MonoBehaviour
             Destroy(createdGO);
         }
 
-        CellGrid cellGrid =
-            new CellGrid(xResolution, zResolution, seed);
+        CellGrid cellGrid = new CellGrid(
+            xResolution, zResolution, seed,
+            waterHeight, maxHeight, noiseScale,
+            heightRandomizationFactor);
         ProceduralMeshGrid meshGrid =
             new ProceduralMeshGrid(cellGrid);
 

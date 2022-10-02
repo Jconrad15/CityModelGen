@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CellGrid
 {
@@ -8,26 +9,36 @@ public class CellGrid
 
     private Vector3 purple = new Vector3(109, 19, 126);
     private Vector3 blue = new Vector3(100, 177, 183);
+    private Color32 waterColor = new Color32(131, 131, 131, 255);
 
     private int xRange = 10;
     private int zRange = 10;
 
+    private float maxHeight;
+    private float waterHeight;
+
     private int xResolution;
     private int zResolution;
 
-    private float scale = 1f;
+    private float scale;
     private float offsetX;
     private float offsetZ;
+    private float heightRandomizationFactor;
 
-    public CellGrid(int xResolution, int zResolution, int seed)
+    public CellGrid(
+        int xResolution, int zResolution, int seed,
+        float waterHeight = 0.2f, float maxHeight = 1f, float scale = 1f,
+        float heightRandomizationFactor = 0f)
     {
         this.xResolution = xResolution;
         this.zResolution = zResolution;
+        this.maxHeight = maxHeight;
+        this.waterHeight = waterHeight;
+        this.scale = scale;
+        this.heightRandomizationFactor = heightRandomizationFactor;
 
         offsetX = (float)xRange / xResolution / 2f;
         offsetZ = (float)zRange / zResolution / 2f;
-        Debug.Log("offsetX = " + offsetX);
-        Debug.Log("offsetZ = " + offsetZ);
 
         Cells = new Cell[xResolution * zResolution];
 
@@ -45,19 +56,23 @@ public class CellGrid
         Random.State oldState = Random.state;
         Random.InitState(seed + (x * z) + x + z);
 
-        float maxHeight = 4f;
-
-        float height = Mathf.PerlinNoise(
-            ((float)x / xRange * scale) + seed,
-            ((float)z / zRange * scale) + seed)
-            * maxHeight;
+        float height = DetermineHeight(x, z, seed);
 
         Color color = HeightToColor(height, maxHeight);
         Vector3 center = new Vector3(
             (float)x / xResolution * xRange,
             0f,
             (float)z / zResolution * zRange);
-        
+        // Change edges to black
+        if (x <= 0.01f ||
+            z <= 0.01f ||
+            x >= xResolution - 1 - 0.1f ||
+            z >= zResolution - 1 - 0.1f)
+        {
+            color = Color.black;
+        }
+
+
         Vector3[] lowerVertices = new Vector3[4];
         lowerVertices[0] = center + new Vector3(-offsetX, 0, -offsetZ);
         lowerVertices[1] = center + new Vector3(-offsetX, 0, offsetZ);
@@ -69,14 +84,46 @@ public class CellGrid
         return new Cell(color, height, lowerVertices);
     }
 
+    private float DetermineHeight(int x, int z, int seed)
+    {
+        Random.State oldState = Random.state;
+        Random.InitState(seed + (x * z) + x + z);
+
+        float height = Mathf.PerlinNoise(
+            ((float)x / xRange * scale) + seed,
+            ((float)z / zRange * scale) + seed)
+            * maxHeight;
+
+        height += heightRandomizationFactor *
+            Random.Range(-maxHeight, maxHeight);
+
+        // Height to water floor
+        if (height <= waterHeight)
+        {
+            height = waterHeight;
+        }
+
+        Random.state = oldState;
+
+        return height;
+    }
+
     private Color HeightToColor(float height, float maxHeight)
     {
         Vector3 lerped = Vector3.Lerp(
             purple, blue, height / maxHeight);
 
-        Color32 newColor = new Color32(
-            (byte)lerped.x, (byte)lerped.y,
-            (byte)lerped.z, 255);
+        Color32 newColor;
+        if (height <= waterHeight)
+        {
+            newColor = waterColor;
+        }
+        else
+        {
+            newColor = new Color32(
+                (byte)lerped.x, (byte)lerped.y,
+                (byte)lerped.z, 255);
+        }
 
         return newColor;
     }
