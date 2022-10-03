@@ -1,3 +1,4 @@
+using ModularMotion;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,31 +8,16 @@ public class SliderUI : MonoBehaviour
     [SerializeField]
     private GameObject sliderArea;
 
+    private UIMotion uiMotion;
+
     private void Start()
     {
-        Hide();
-    }
-
-    private void Hide()
-    {
-        sliderArea.SetActive(false);
-    }
-
-    private void Show()
-    {
-        sliderArea.SetActive(true);
+        uiMotion = sliderArea.GetComponent<UIMotion>();
     }
 
     public void Toggle()
     {
-        if (sliderArea.activeSelf == true)
-        {
-            Hide();
-        }
-        else
-        {
-            Show();
-        }
+        uiMotion.Play();
     }
 
 }

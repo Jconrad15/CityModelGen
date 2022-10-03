@@ -5,6 +5,8 @@ using UnityEngine;
 public class MainController : MonoBehaviour
 {
     private GameObject createdGO;
+    private MeshRenderer mr;
+    private MeshFilter mf;
 
     [SerializeField]
     private Material material;
@@ -19,6 +21,11 @@ public class MainController : MonoBehaviour
 
     private void Start()
     {
+        createdGO = new GameObject("grid");
+        createdGO.transform.SetParent(transform);
+        mr = createdGO.AddComponent<MeshRenderer>();
+        mf = createdGO.AddComponent<MeshFilter>();
+
         CreateNewGrid();
     }
 
@@ -32,22 +39,13 @@ public class MainController : MonoBehaviour
 
     private void CreateNewGrid()
     {
-        if (createdGO != null)
-        {
-            Destroy(createdGO);
-        }
-
         CellGrid cellGrid = new CellGrid(
             xResolution, zResolution, seed,
             waterHeight, maxHeight, noiseScale,
             heightRandomizationFactor);
+
         ProceduralMeshGrid meshGrid =
             new ProceduralMeshGrid(cellGrid);
-
-        createdGO = new GameObject("grid");
-        createdGO.transform.SetParent(transform);
-        MeshRenderer mr = createdGO.AddComponent<MeshRenderer>();
-        MeshFilter mf = createdGO.AddComponent<MeshFilter>();
 
         mf.mesh = meshGrid.Mesh;
         mr.material = material;

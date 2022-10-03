@@ -8,7 +8,7 @@ public class CellGrid
 
     private Vector3 purple = new Vector3(109, 19, 126);
     private Vector3 blue = new Vector3(100, 177, 183);
-    private Color32 waterColor = new Color32(131, 131, 131, 255);
+    private Color32 waterColor = new Color32(115, 115, 130, 255);
 
     private int xRange = 10;
     private int zRange = 10;
