@@ -10,8 +10,8 @@ public class CellGrid
     private Vector3 blue = new Vector3(100, 177, 183);
     private Color32 waterColor = new Color32(115, 115, 130, 255);
 
-    private int xRange = 10;
-    private int zRange = 10;
+    private readonly int xRange = 10;
+    private readonly int zRange = 10;
 
     private float maxHeight;
     private float waterHeight;
@@ -55,13 +55,17 @@ public class CellGrid
         Random.State oldState = Random.state;
         Random.InitState(seed + (i * 100));
 
-        float height = DetermineHeight(x, z, i, seed);
-
-        Color color = HeightToColor(height, maxHeight);
+        // Determine location 
         Vector3 center = new Vector3(
             (float)x / xResolution * xRange,
             0f,
             (float)z / zResolution * zRange);
+
+        // Determine height
+        float height = DetermineHeight(x, z, i, seed);
+
+        // Determine Color
+        Color color = HeightToColor(height, maxHeight);
         // Change edges to black
         if (x <= 0.01f ||
             z <= 0.01f ||
@@ -70,7 +74,6 @@ public class CellGrid
         {
             color = Color.black;
         }
-
 
         Vector3[] lowerVertices = new Vector3[4];
         lowerVertices[0] = center + new Vector3(-offsetX, 0, -offsetZ);
@@ -98,6 +101,12 @@ public class CellGrid
 
         // Height to water floor
         if (height <= waterHeight)
+        {
+            height = waterHeight;
+        }
+
+        // Lower short buildings to water
+        if (height <= waterHeight + (waterHeight * 0.1f))
         {
             height = waterHeight;
         }
