@@ -24,10 +24,18 @@ public class CellGrid
     private float offsetZ;
     private float heightRandomizationFactor;
 
+    private int voronoiRegionCount;
+    private int maxCategoryTypes = 5;
+
+    private int[] voronoiCategories;
+    private int[] voronoiSeedIndices;
+    private float voronoiPerlinInfluence; // 0 is all Perlin
+
     public CellGrid(
         int xResolution, int zResolution, int seed,
         float waterHeight = 0.2f, float maxHeight = 1f, float scale = 1f,
-        float heightRandomizationFactor = 0f)
+        float heightRandomizationFactor = 0f,
+        float voronoiPerlinInfluence = 0f, int voronoiRegionCount = 50)
     {
         this.xResolution = xResolution;
         this.zResolution = zResolution;
@@ -35,12 +43,18 @@ public class CellGrid
         this.waterHeight = waterHeight;
         this.scale = scale;
         this.heightRandomizationFactor = heightRandomizationFactor;
+        this.voronoiPerlinInfluence = voronoiPerlinInfluence;
+        this.voronoiRegionCount = voronoiRegionCount;
 
         offsetX = (float)xRange / xResolution / 2f;
         offsetZ = (float)zRange / zResolution / 2f;
 
         Cells = new Cell[xResolution * zResolution];
 
+        CreateVoronoi(xResolution, zResolution, seed, voronoiRegionCount);
+
+
+        // Create cells
         for (int x = 0, i = 0; x < xResolution; x++)
         {
             for (int z = 0; z < zResolution; z++, i++)
@@ -50,7 +64,24 @@ public class CellGrid
         }
     }
 
-    public Cell GenerateCell(int x, int z, int i, int seed)
+    private void CreateVoronoi(int xResolution, int zResolution, int seed, int voronoiRegionCount)
+    {
+        // Perform Voronoi process to determine height regions
+        (voronoiCategories, voronoiSeedIndices) = Voronoi.JumpFlood(
+            xResolution, zResolution, seed, voronoiRegionCount, maxCategoryTypes);
+        // Check if Voronoi is null
+        if (voronoiCategories == null)
+        {
+            voronoiCategories = new int[xResolution * zResolution];
+            for (int i = 0; i < voronoiCategories.Length; i++)
+            {
+                voronoiCategories[i] = 0;
+            }
+            voronoiSeedIndices = new int[1] { 0 };
+        }
+    }
+
+    private Cell GenerateCell(int x, int z, int i, int seed)
     {
         Random.State oldState = Random.state;
         Random.InitState(seed + (i * 100));
@@ -82,7 +113,6 @@ public class CellGrid
         lowerVertices[3] = center + new Vector3(offsetX, 0, -offsetZ);
 
         Random.state = oldState;
-
         return new Cell(color, height, lowerVertices);
     }
 
@@ -91,10 +121,17 @@ public class CellGrid
         Random.State oldState = Random.state;
         Random.InitState(seed + (i * 100));
 
-        float height = Mathf.PerlinNoise(
+        float perlinHeight = Mathf.PerlinNoise(
             ((float)x / xRange * scale) + seed,
             ((float)z / zRange * scale) + seed)
             * maxHeight;
+
+        float voronoiHeight =
+            voronoiCategories[i] / (float)maxCategoryTypes * maxHeight;
+
+        float height =
+            (Mathf.Abs(voronoiPerlinInfluence - 1) * perlinHeight) +
+            (voronoiPerlinInfluence * voronoiHeight);
 
         height += heightRandomizationFactor *
             Random.Range(-maxHeight, maxHeight);
@@ -112,7 +149,6 @@ public class CellGrid
         }
 
         Random.state = oldState;
-
         return height;
     }
 

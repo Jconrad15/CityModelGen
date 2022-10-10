@@ -15,14 +15,9 @@ public class UserInput : MonoBehaviour
         mainController.SeedChanged((int)seed);
     }
 
-    public void XResolutionChanged(float xResolution)
+    public void ResolutionChanged(float resolution)
     {
-        mainController.XResolutionChanged((int)xResolution);
-    }
-
-    public void ZResolutionChanged(float zResolution)
-    {
-        mainController.ZResolutionChanged((int)zResolution);
+        mainController.ResolutionChanged((int)resolution);
     }
 
     public void WaterHeightChanged(float waterHeight)
@@ -47,4 +42,17 @@ public class UserInput : MonoBehaviour
             heightRandomizationFactor);
     }
 
+    public void VoronoiPerlinInfluenceChanged(
+        float voronoiPerlinInfluence)
+    {
+        mainController.VoronoiPerlinInfluenceChanged(
+            voronoiPerlinInfluence);
+    }
+
+    public void VoronoiRegionCountChanged(
+        float voronoiRegionCount)
+    {
+        mainController.VoronoiRegionCountChanged(
+            (int)voronoiRegionCount);
+    }
 }
