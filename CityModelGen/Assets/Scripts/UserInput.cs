@@ -55,4 +55,11 @@ public class UserInput : MonoBehaviour
         mainController.VoronoiRegionCountChanged(
             (int)voronoiRegionCount);
     }
+
+    public void BuildingWidthChanged(
+        float buildingWidth)
+    {
+        mainController.BuildingWidthChanged(
+            buildingWidth);
+    }
 }

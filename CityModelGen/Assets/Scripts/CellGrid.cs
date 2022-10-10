@@ -20,8 +20,8 @@ public class CellGrid
     private int zResolution;
 
     private float scale;
-    private float offsetX;
-    private float offsetZ;
+    private float buildingRadius;
+    private float waterRadius;
     private float heightRandomizationFactor;
 
     private int voronoiRegionCount;
@@ -31,11 +31,14 @@ public class CellGrid
     private int[] voronoiSeedIndices;
     private float voronoiPerlinInfluence; // 0 is all Perlin
 
+    private float buildingWidth;
+
     public CellGrid(
         int xResolution, int zResolution, int seed,
         float waterHeight = 0.2f, float maxHeight = 1f, float scale = 1f,
         float heightRandomizationFactor = 0f,
-        float voronoiPerlinInfluence = 0f, int voronoiRegionCount = 50)
+        float voronoiPerlinInfluence = 0f, int voronoiRegionCount = 50,
+        float buildingWidth = 1)
     {
         this.xResolution = xResolution;
         this.zResolution = zResolution;
@@ -45,14 +48,13 @@ public class CellGrid
         this.heightRandomizationFactor = heightRandomizationFactor;
         this.voronoiPerlinInfluence = voronoiPerlinInfluence;
         this.voronoiRegionCount = voronoiRegionCount;
+        this.buildingWidth = buildingWidth;
 
-        offsetX = (float)xRange / xResolution / 2f;
-        offsetZ = (float)zRange / zResolution / 2f;
+        buildingRadius = ((float)xRange / xResolution / 2f) * buildingWidth;
+        waterRadius = (float)xRange / xResolution / 2f;
 
         Cells = new Cell[xResolution * zResolution];
-
         CreateVoronoi(xResolution, zResolution, seed, voronoiRegionCount);
-
 
         // Create cells
         for (int x = 0, i = 0; x < xResolution; x++)
@@ -106,11 +108,22 @@ public class CellGrid
             color = Color.black;
         }
 
+        // Determine which radius to use
+        float radius;
+        if (height <= waterHeight)
+        {
+            radius = waterRadius;
+        }
+        else
+        {
+            radius = buildingRadius;
+        }
+
         Vector3[] lowerVertices = new Vector3[4];
-        lowerVertices[0] = center + new Vector3(-offsetX, 0, -offsetZ);
-        lowerVertices[1] = center + new Vector3(-offsetX, 0, offsetZ);
-        lowerVertices[2] = center + new Vector3(offsetX, 0, offsetZ);
-        lowerVertices[3] = center + new Vector3(offsetX, 0, -offsetZ);
+        lowerVertices[0] = center + new Vector3(-radius, 0, -radius);
+        lowerVertices[1] = center + new Vector3(-radius, 0, radius);
+        lowerVertices[2] = center + new Vector3(radius, 0, radius);
+        lowerVertices[3] = center + new Vector3(radius, 0, -radius);
 
         Random.state = oldState;
         return new Cell(color, height, lowerVertices);
@@ -143,7 +156,7 @@ public class CellGrid
         }
 
         // Lower short buildings to water
-        if (height <= waterHeight + (waterHeight * 0.1f))
+        if (height <= waterHeight + (waterHeight * 0.2f))
         {
             height = waterHeight;
         }

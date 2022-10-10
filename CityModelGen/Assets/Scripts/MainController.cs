@@ -26,6 +26,7 @@ public class MainController : MonoBehaviour
     private float heightRandomizationFactor = 0.1f;
     private float voronoiPerlinInfluence = 0.25f;
     private int voronoiRegionCount = 50;
+    private float buildingWidth = 1f;
 
     private void Start()
     {
@@ -42,34 +43,20 @@ public class MainController : MonoBehaviour
         CreateNewGrid();
     }
 
-/*    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            CreateNewGrid();
-        }
-    }*/
-
     private void CreateNewGrid()
-    {
-        StopAllCoroutines();
-        StartCoroutine(NewGridCoroutine());
-    }
-
-    private IEnumerator NewGridCoroutine()
     {
         CellGrid cellGrid = new CellGrid(
             xResolution, zResolution, seed,
             waterHeight, maxHeight, noiseScale,
             heightRandomizationFactor,
-            voronoiPerlinInfluence, voronoiRegionCount);
+            voronoiPerlinInfluence, voronoiRegionCount,
+            buildingWidth);
 
         ProceduralMeshGrid meshGrid =
             new ProceduralMeshGrid(cellGrid);
 
         mf.mesh = meshGrid.Mesh;
         mr.material = material;
-        yield return null;
     }
 
     public MeshFilter GetMeshFilter()
@@ -126,6 +113,13 @@ public class MainController : MonoBehaviour
         int voronoiRegionCount)
     {
         this.voronoiRegionCount = voronoiRegionCount;
+        CreateNewGrid();
+    }
+
+    public void BuildingWidthChanged(
+        float buildingWidth)
+    {
+        this.buildingWidth = buildingWidth;
         CreateNewGrid();
     }
 
