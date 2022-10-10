@@ -62,4 +62,26 @@ public class UserInput : MonoBehaviour
         mainController.BuildingWidthChanged(
             buildingWidth);
     }
+
+    public void EmptyLotPercentChanged(
+        float emptyLotPercent)
+    {
+        mainController.EmptyLotPercentChanged(
+            emptyLotPercent);
+    }
+
+    public void LoneIslandThresholdChanged(
+        float loneIslandThreshold)
+    {
+        loneIslandThreshold = Mathf.Abs(loneIslandThreshold - 4);
+        mainController.LoneIslandThresholdChanged(
+            loneIslandThreshold);
+    }
+
+    public void UseRoadColorChanged(
+        bool useRoadColor)
+    {
+        mainController.UseRoadColorChanged(
+            useRoadColor);
+    }
 }

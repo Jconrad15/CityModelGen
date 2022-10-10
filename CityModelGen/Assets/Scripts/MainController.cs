@@ -27,6 +27,9 @@ public class MainController : MonoBehaviour
     private float voronoiPerlinInfluence = 0.25f;
     private int voronoiRegionCount = 50;
     private float buildingWidth = 1f;
+    private float emptyLotPercent = 0f;
+    private float loneIslandThreshold = 4f;
+    private bool useRoadColor = false;
 
     private void Start()
     {
@@ -50,7 +53,8 @@ public class MainController : MonoBehaviour
             waterHeight, maxHeight, noiseScale,
             heightRandomizationFactor,
             voronoiPerlinInfluence, voronoiRegionCount,
-            buildingWidth);
+            buildingWidth, emptyLotPercent,
+            loneIslandThreshold, useRoadColor);
 
         ProceduralMeshGrid meshGrid =
             new ProceduralMeshGrid(cellGrid);
@@ -120,6 +124,27 @@ public class MainController : MonoBehaviour
         float buildingWidth)
     {
         this.buildingWidth = buildingWidth;
+        CreateNewGrid();
+    }
+
+    public void EmptyLotPercentChanged(
+        float emptyLotPercent)
+    {
+        this.emptyLotPercent = emptyLotPercent;
+        CreateNewGrid();
+    }
+
+    public void LoneIslandThresholdChanged(
+        float loneIslandThreshold)
+    {
+        this.loneIslandThreshold = loneIslandThreshold;
+        CreateNewGrid();
+    }
+
+    public void UseRoadColorChanged(
+        bool useRoadColor)
+    {
+        this.useRoadColor = useRoadColor;
         CreateNewGrid();
     }
 
