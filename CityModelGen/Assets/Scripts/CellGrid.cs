@@ -21,7 +21,7 @@ public class CellGrid
 
     private float scale;
     private float buildingRadius;
-    private float waterRadius;
+    private float fullRadius;
     private float heightRandomizationFactor;
 
     private int voronoiRegionCount;
@@ -51,7 +51,7 @@ public class CellGrid
         this.buildingWidth = buildingWidth;
 
         buildingRadius = ((float)xRange / xResolution / 2f) * buildingWidth;
-        waterRadius = (float)xRange / xResolution / 2f;
+        fullRadius = (float)xRange / xResolution / 2f;
 
         Cells = new Cell[xResolution * zResolution];
         CreateVoronoi(xResolution, zResolution, seed, voronoiRegionCount);
@@ -95,10 +95,12 @@ public class CellGrid
             (float)z / zResolution * zRange);
 
         // Determine height
-        float height = DetermineHeight(x, z, i, seed);
+        (float height, float groundHeight) =
+            DetermineHeight(x, z, i, seed);
 
         // Determine Color
         Color color = HeightToColor(height, maxHeight);
+        Color groundColor = HeightToColor(groundHeight, maxHeight);
         // Change edges to black
         if (x <= 0.01f ||
             z <= 0.01f ||
@@ -106,30 +108,46 @@ public class CellGrid
             z >= zResolution - 1 - 0.1f)
         {
             color = Color.black;
+            groundColor = Color.black;
         }
 
+        bool isWater;
         // Determine which radius to use
         float radius;
         if (height <= waterHeight)
         {
-            radius = waterRadius;
+            radius = fullRadius;
+            isWater = true;
         }
         else
         {
             radius = buildingRadius;
+            isWater = false;
         }
 
+        // Lower vertices
         Vector3[] lowerVertices = new Vector3[4];
-        lowerVertices[0] = center + new Vector3(-radius, 0, -radius);
-        lowerVertices[1] = center + new Vector3(-radius, 0, radius);
-        lowerVertices[2] = center + new Vector3(radius, 0, radius);
-        lowerVertices[3] = center + new Vector3(radius, 0, -radius);
+        lowerVertices[0] = center + new Vector3(-radius, groundHeight, -radius);
+        lowerVertices[1] = center + new Vector3(-radius, groundHeight, radius);
+        lowerVertices[2] = center + new Vector3(radius, groundHeight, radius);
+        lowerVertices[3] = center + new Vector3(radius, groundHeight, -radius);
+
+        // Outer lower vertices
+        Vector3[] outerLowerVertices = new Vector3[4];
+        outerLowerVertices[0] = center + new Vector3(-fullRadius, groundHeight, -fullRadius);
+        outerLowerVertices[1] = center + new Vector3(-fullRadius, groundHeight, fullRadius);
+        outerLowerVertices[2] = center + new Vector3(fullRadius, groundHeight, fullRadius);
+        outerLowerVertices[3] = center + new Vector3(fullRadius, groundHeight, -fullRadius);
 
         Random.state = oldState;
-        return new Cell(color, height, lowerVertices);
+        return new Cell(
+            color, groundColor, height,
+            lowerVertices, outerLowerVertices,
+            groundHeight, waterHeight, isWater);
     }
 
-    private float DetermineHeight(int x, int z, int i, int seed)
+    private (float height, float groundHeight)
+        DetermineHeight(int x, int z, int i, int seed)
     {
         Random.State oldState = Random.state;
         Random.InitState(seed + (i * 100));
@@ -149,20 +167,24 @@ public class CellGrid
         height += heightRandomizationFactor *
             Random.Range(-maxHeight, maxHeight);
 
+        float groundHeight = waterHeight + (height * 0.1f);
+
         // Height to water floor
         if (height <= waterHeight)
         {
             height = waterHeight;
+            groundHeight = waterHeight;
         }
 
         // Lower short buildings to water
-        if (height <= waterHeight + (waterHeight * 0.2f))
+        if (height <= waterHeight + (waterHeight * 0.3f))
         {
             height = waterHeight;
+            groundHeight = waterHeight;
         }
 
         Random.state = oldState;
-        return height;
+        return (height, groundHeight);
     }
 
     private Color HeightToColor(float height, float maxHeight)

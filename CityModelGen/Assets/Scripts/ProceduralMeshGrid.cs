@@ -44,6 +44,7 @@ public class ProceduralMeshGrid
 
     private void Triangulate(Cell cell)
     {
+        // Building Sides
         AddQuad(
             cell.lowerVertices[0], cell.lowerVertices[1],
             cell.upperVertices[1], cell.upperVertices[0]);
@@ -69,6 +70,69 @@ public class ProceduralMeshGrid
             cell.upperVertices[0], cell.upperVertices[1],
             cell.upperVertices[2], cell.upperVertices[3]);
         AddQuadColor(cell.color);
+
+        // Roads on the side of the building
+        if (cell.isWater == false)
+        {
+            // Four sides of roads around the building
+            AddQuad(
+                cell.lowerVertices[0],
+                cell.outerLowerVertices[0],
+                cell.outerLowerVertices[1],
+                cell.lowerVertices[1]);
+            AddQuadColor(cell.groundColor);
+
+            AddQuad(
+                cell.lowerVertices[1],
+                cell.outerLowerVertices[1],
+                cell.outerLowerVertices[2],
+                cell.lowerVertices[2]);
+            AddQuadColor(cell.groundColor);
+
+            AddQuad(
+                cell.lowerVertices[2],
+                cell.outerLowerVertices[2],
+                cell.outerLowerVertices[3],
+                cell.lowerVertices[3]);
+            AddQuadColor(cell.groundColor);
+
+            AddQuad(
+                cell.lowerVertices[3],
+                cell.outerLowerVertices[3],
+                cell.outerLowerVertices[0],
+                cell.lowerVertices[0]);
+            AddQuadColor(cell.groundColor);
+
+            // Four sides reaching down roads
+            AddQuad(
+                cell.outerLowerVertices[1],
+                cell.outerLowerVertices[0],
+                new Vector3(cell.outerLowerVertices[0].x, cell.waterHeight, cell.outerLowerVertices[0].z),
+                new Vector3(cell.outerLowerVertices[1].x, cell.waterHeight, cell.outerLowerVertices[1].z));
+            AddQuadColor(cell.groundColor);
+
+            AddQuad(
+                cell.outerLowerVertices[2],
+                cell.outerLowerVertices[1],
+                new Vector3(cell.outerLowerVertices[1].x, cell.waterHeight, cell.outerLowerVertices[1].z),
+                new Vector3(cell.outerLowerVertices[2].x, cell.waterHeight, cell.outerLowerVertices[2].z));
+            AddQuadColor(cell.groundColor);
+
+            AddQuad(
+                cell.outerLowerVertices[3],
+                cell.outerLowerVertices[2],
+                new Vector3(cell.outerLowerVertices[2].x, cell.waterHeight, cell.outerLowerVertices[2].z),
+                new Vector3(cell.outerLowerVertices[3].x, cell.waterHeight, cell.outerLowerVertices[3].z));
+            AddQuadColor(cell.groundColor);
+
+            AddQuad(
+                cell.outerLowerVertices[0],
+                cell.outerLowerVertices[3],
+                new Vector3(cell.outerLowerVertices[3].x, cell.waterHeight, cell.outerLowerVertices[3].z),
+                new Vector3(cell.outerLowerVertices[0].x, cell.waterHeight, cell.outerLowerVertices[0].z));
+            AddQuadColor(cell.groundColor);
+        }
+
     }
 
     void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4)
