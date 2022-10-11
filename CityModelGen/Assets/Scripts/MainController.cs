@@ -20,15 +20,15 @@ public class MainController : MonoBehaviour
     private int seed = 0;
     private int xResolution = 50;
     private int zResolution = 50;
-    private float waterHeight = 0.4f;
-    private float maxHeight = 1.1f;
+    private float waterHeight = 0.66f;
+    private float maxHeight = 1.8f;
     private float noiseScale = 0.475f;
     private float heightRandomizationFactor = 0.1f;
-    private float voronoiPerlinInfluence = 0.25f;
-    private int voronoiRegionCount = 50;
-    private float buildingWidth = 1f;
-    private float emptyLotPercent = 0f;
-    private float loneIslandThreshold = 4f;
+    private float voronoiPerlinInfluence = 0.28f;
+    private int voronoiRegionCount = 25;
+    private float buildingWidth = 0.75f;
+    private float emptyLotPercent = 0.25f;
+    private float loneIslandThreshold = 2f;
     private bool useRoadColor = false;
 
     private void Start()
